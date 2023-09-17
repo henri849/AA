@@ -27,26 +27,31 @@ public class BST{
         this.root = null;//nub
     }
 
+    public void scrubParent(Node n1){ //sets the parent's link to n1 to null thereby scrubing the branch n1 forks to, does nothing when n1 is null and scrub's itself when n1 is root;
+        if (n1 == null) return;
+        if (n1 == this.getRoot()){this.root = null;return;};
+        if (n1.parent == null){return;};//handles case where n1 is incorrectly initalized and thus has no parent but isn't root, this could prevent total deletion of tree
+        if (n1 == n1.parent.child[1]) n1.parent.child[1] = null; else n1.parent.child[0] = null;//sets the link between n1 and it's parent to null
+    }
+
     public int depth(){
         return root.depth();
     }
 
     public String printwalk(){
         //the idea here is to print the nodes in incremental order
-        Node current = this.getRoot();
-        
+
         //next I consider using an assert but given that printwalking an empty tree is a valid use case I switched it out for an if
-        if (current == null) return "";//assert current != null : "Cannot printwalk empty tree";
-        
-        current = current.smallest();
+        if (this.getRoot() == null) return "";//assert current != null : "Cannot printwalk empty tree";
+
+        Node current = this.getRoot().smallest();
         Node next = current.successor();
         String rtn = current.toString();
         while (next != null){//we start with the smallest node and then print each successive successor.
             if (next != null) rtn += " ";//adding spaces if there's a next element
             rtn += next.toString();
             current = next;
-            next = current.successor();
-            
+            next = next.successor();
         }
         return rtn;
     }
@@ -164,7 +169,46 @@ class Tester{
     }
 
     private void BSTCheckRemove(){
-        BST tree = new BST(new Node(1));
+        BST tree = new BST();
+        tree.insert(1);
+        tree.insert(-1);
+        tree.insert(2);
+        tree.insert(1);
+        tree.insert(1);
+        tree.insert(2);
+        /*
+            1
+         -1   2
+           1 2
+          1
+        */
+        //Standard uses for scrub function:
+        tree.scrubParent(null);
+        if (tree.printwalk().equals("-1 1 1 1 2 2"))pass++; else fail++;
+        tree.scrubParent(tree.getRoot().child[1]);
+        if (tree.printwalk().equals("-1 1 1 1"))pass++; else fail++;
+        tree.insert(2);
+        tree.insert(2);
+        tree.scrubParent(tree.getRoot().child[1].child[0]);
+        if (tree.printwalk().equals("-1 1 1 1 2"))pass++; else fail++;
+        tree.insert(2);
+        tree.scrubParent(tree.getRoot().child[0].child[1].child[0]);
+        if (tree.printwalk().equals("-1 1 1 2 2"))pass++; else fail++;
+        tree.insert(1);
+        tree.scrubParent(tree.getRoot().child[0].child[1]);
+        if (tree.printwalk().equals("-1 1 2 2"))pass++; else fail++;
+        tree.insert(1);
+        tree.insert(1);
+        tree.scrubParent(tree.getRoot().child[0]);
+        if (tree.printwalk().equals("1 2 2"))pass++; else fail++;
+        tree.insert(1);
+        tree.insert(1);
+        tree.insert(-1);
+        tree.scrubParent(tree.getRoot());
+        if (tree.printwalk().equals(""))pass++; else fail++;
+
+        //testing remove function
+        tree = new BST(new Node(1));
         tree.remove(1);
         if (tree.isEmpty())pass++; else fail++;
     }; 
@@ -222,12 +266,12 @@ class Node{
         Node next = this.parent;
         if (next == null) return null;//this is for the case where the only node is the root
         Node current = this;
-        while (parent.child[1] == current){// go up the tree from the starting node until the branch becomes the left child of some other branch, that parent must be the successor assuming the tree is valid
-            current = parent;
-            parent = current.parent;
-            if (parent == null) return null;
+        while (next.child[1] == current){// go up the tree from the starting node until the branch becomes the left child of some other branch, that parent must be the successor assuming the tree is valid
+            current = next;
+            next = current.parent;
+            if (next == null) return null;
         }
-        return parent;
+        return next;
     }
     public Node smallest(){
         if (this.child[0] == null) return this;//recusive minimum function, always looks for smallest node underneath by following left child
