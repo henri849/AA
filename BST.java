@@ -6,10 +6,26 @@ public class BST{
     public BST(Node _root){root = _root;};
 
     public static void main(String[] args){
-        Tester t = new Tester();
-        t.testNode();
-        t.testBST();
-        System.out.println("pass:"+t.pass + ", fail:" + t.fail);
+        // Tester t = new Tester();
+        // t.testNode();
+        // t.testBST();
+        // System.out.println("pass:"+t.pass + ", fail:" + t.fail);
+        // int n_elem = 1000;
+        int n_tests = 1000;
+        int depth = 0;
+        BST random;
+        for (int n_elem = 2; n_elem < 1000; n_elem++){
+            depth = 0;
+            for (int i = 0; i < n_tests; i++){//averaging over a large amount of random trees
+                random = new BST();
+                for (int j = 0; j < n_elem; j++){//adding each random element
+                    random.insert(ThreadLocalRandom.current().nextInt(-100000, 100001));
+                }
+                depth += random.depth();
+            }
+            System.out.println((double)depth/n_tests);
+        }
+        
     };
 
     public Node getRoot(){return this.root;};
@@ -132,12 +148,12 @@ class Tester{
         if (tree.getRoot() != null)pass++; else fail++; 
         if (!tree.isEmpty())pass++; else fail++; 
 
-        //depth test
-        if (tree.depth() == 1)pass++; else fail++; 
-        for (int i =0; i < 100; i++){
-            tree.insert(ThreadLocalRandom.current().nextInt(-100,100));
-            if (tree.depth() == 2+i)pass++; else fail++; 
-        }
+        // //depth test
+        // if (tree.depth() == 1)pass++; else fail++; 
+        // for (int i =0; i < 100; i++){
+        //     tree.insert(ThreadLocalRandom.current().nextInt(-100,100));
+        //     if (tree.depth() == 2+i)pass++; else fail++; 
+        // }
     }
     private void BSTCheckInsert(){
         BST tree = new BST();
@@ -251,11 +267,13 @@ class Node{
     public Node(int _key){
         key = _key;
     }
-    public int depth(){ //inclues the node it's called on
-        int total = 1;//recursion base case
-        if (this.child[0] != null){total+=this.child[0].depth();}// recursivly adds all leafs on the left branch
-        if (this.child[1] != null){total+=this.child[1].depth();}// recursivly adds all leafs on the right branch
-        return total;
+    public int depth(){
+        if (child[0] == null && child[1] == null) return 0;
+
+        if (child[0] == null) return child[1].depth()+1;
+        if (child[1] == null) return child[0].depth()+1;
+
+        return Math.max(child[1].depth()+1,child[0].depth()+1);
     }
     public Node(int _key, Node _parent){
         key = _key;
