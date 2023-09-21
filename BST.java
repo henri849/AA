@@ -10,6 +10,33 @@ public class BST2{
         t.testNode();
         t.testBST2();
         System.out.println("pass:"+t.pass + ", fail:" + t.fail);
+        // BST2 tree = new BST2();
+        // tree.insert(1);
+        // tree.insert(-1);
+        // tree.insert(2);
+        // tree.insert(-5);
+        // tree.insert(0.5);
+        // tree.insert(1.7);
+        // tree.insert(5);
+        // tree.insert(-6);
+        // tree.insert(-4);
+        // tree.insert(0.3);
+        // tree.insert(0.7);
+        // tree.insert(1.4);
+        // tree.insert(1.8);
+        // tree.insert(4);
+        // tree.insert(6);
+        // tree.insert(-7);tree.insert(-5.5);tree.insert(-4.5);tree.insert(-3.5);tree.insert(0.2);tree.insert(0.4);tree.insert(0.6);
+        // tree.insert(0.8);tree.insert(1.3);tree.insert(1.5);tree.insert(1.75);tree.insert(1.9);tree.insert(3);tree.insert(5);tree.insert(5.5);tree.insert(7);
+        /*
+                    1
+             -1              2
+         -5     0.5     1.7     5
+       -6,-4,0.3,0.7  1.4  1.8 4 6
+      -7,-5.5,-4.5,-3.5,0.2,0.4,0.6,0.8,1.3,1.5,1.75,1.9,3,5,5.5,7
+      */
+        // System.out.println(tree.breadthFirstEnum());
+        
     };
 
     public Node getRoot(){return this.root;};
@@ -69,8 +96,12 @@ public class BST2{
         return rtn;
     }
 
-    public String depthFirstEnum(){
-        return this.printwalk();//just so happens to be the same
+    public String depthFirstEnum(Node start){
+        if (start == null) return "";
+        String rtn = start.toString();
+        rtn += this.depthFirstEnum(start.child[0]) + this.depthFirstEnum(start.child[1]); 
+        // return this.printwalk();//just so happens to be the same
+        return rtn;
     }
     public Node depthFirstSearch(double key){
         Node elem = this.getRoot().smallest();
@@ -195,6 +226,37 @@ class Tester{
     }
     private void BST2CheckDepthEnum(){
         //no need for anything as printwalk has already been tested
+        BST2 tree = new BST2();
+        tree.insert(1);
+        tree.insert(-1);
+        tree.insert(2);
+        tree.insert(1);
+        tree.insert(1);
+        tree.insert(2);
+                // System.out.println(tree.depthFirstEnum(tree.getRoot()));
+
+        if (tree.depthFirstEnum(tree.getRoot()).equals("1.0-1.01.01.02.02.0"))pass++; else fail++;
+        tree.scrubParent(tree.getRoot().child[1]);
+        if (tree.depthFirstEnum(tree.getRoot()).equals("1.0-1.01.01.0"))pass++; else fail++;
+        tree.insert(2);
+        tree.insert(2);
+        tree.scrubParent(tree.getRoot().child[1].child[0]);
+        if (tree.depthFirstEnum(tree.getRoot()).equals("1.0-1.01.01.02.0"))pass++; else fail++;
+        tree.insert(2);
+        tree.scrubParent(tree.getRoot().child[0].child[1].child[0]);
+        if (tree.depthFirstEnum(tree.getRoot()).equals("1.0-1.01.02.02.0"))pass++; else fail++;
+        tree.insert(1);
+        tree.scrubParent(tree.getRoot().child[0].child[1]);
+        if (tree.depthFirstEnum(tree.getRoot()).equals("1.0-1.02.02.0"))pass++; else fail++;
+        tree.insert(1);
+        tree.insert(1);
+        tree.scrubParent(tree.getRoot().child[0]);
+        if (tree.depthFirstEnum(tree.getRoot()).equals("1.02.02.0"))pass++; else fail++;
+        tree.insert(1);
+        tree.insert(1);
+        tree.insert(-1);
+        tree.scrubParent(tree.getRoot());
+        if (tree.depthFirstEnum(tree.getRoot()).equals(""))pass++; else fail++;
     }
     private void BST2CheckBreadthEnum(){
         BST2 tree = new BST2();
