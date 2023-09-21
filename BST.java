@@ -1,36 +1,20 @@
 import java.util.concurrent.ThreadLocalRandom;
-
-public class BST{
+import java.util.ArrayList;
+public class BST2{
     private Node root;
-    public BST(){};//default constructor could cause issues where functions don't anticipate the root being null
-    public BST(Node _root){root = _root;};
+    public BST2(){};//default constructor could cause issues where functions don't anticipate the root being null
+    public BST2(Node _root){root = _root;};
 
     public static void main(String[] args){
-        // Tester t = new Tester();
-        // t.testNode();
-        // t.testBST();
-        // System.out.println("pass:"+t.pass + ", fail:" + t.fail);
-        // int n_elem = 1000;
-        int n_tests = 1000;
-        int depth = 0;
-        BST random;
-        for (int n_elem = 2; n_elem < 1000; n_elem++){
-            depth = 0;
-            for (int i = 0; i < n_tests; i++){//averaging over a large amount of random trees
-                random = new BST();
-                for (int j = 0; j < n_elem; j++){//adding each random element
-                    random.insert(ThreadLocalRandom.current().nextInt(-100000, 100001));
-                }
-                depth += random.depth();
-            }
-            System.out.println((double)depth/n_tests);
-        }
-        
+        Tester t = new Tester();
+        t.testNode();
+        t.testBST2();
+        System.out.println("pass:"+t.pass + ", fail:" + t.fail);
     };
 
     public Node getRoot(){return this.root;};
 
-    public void insert(int key){
+    public void insert(double key){
         if (this.isEmpty()){this.root = new Node(key);}else{ // if the tree is empty set the root
             Node next = this.root;
             int idx = (key > next.key)? 1 : 0; // if the object we're trying to place is smaller or equal to the next varible node this corresponds to left else right
@@ -39,7 +23,7 @@ public class BST{
         }
     }
 
-    public void remove(int key){
+    public void remove(double key){
         this.root = null;//nub
     }
 
@@ -72,6 +56,30 @@ public class BST{
         return rtn;
     }
 
+    public String breadthFirstEnum(){
+        if (this.getRoot() == null) return "";
+        ArrayList<Node> queue = new ArrayList<Node>();
+        queue.add(this.getRoot());
+        String rtn = this.getRoot().toString();
+        while (queue.size() >0){
+            Node x = queue.remove(0);
+            if (x.child[0] != null){queue.add(x.child[0]);rtn += ","+ x.child[0];};
+            if (x.child[1] != null){queue.add(x.child[1]);rtn += ","+ x.child[1];};
+        }
+        return rtn;
+    }
+
+    public String depthFirstEnum(){
+        return this.printwalk();//just so happens to be the same
+    }
+    public Node depthFirstSearch(double key){
+        Node elem = this.getRoot().smallest();
+        while (elem != null && elem.key != key){
+            elem = elem.successor();
+        }
+        return elem;
+    }
+
     public boolean isEmpty(){return root == null;};
 }
 
@@ -82,14 +90,16 @@ class Tester{
         NodeCheckInitialization(); 
         NodeCheckSuccessor();
     }
-    public void testBST(){
-        BSTCheckInitialization(); //tests depth, isEmpty,getRoot and constructors
-        BSTCheckInsert();
-        BSTCheckRemove(); 
-        BSTCheckPrintWalk(); 
+    public void testBST2(){
+        BST2CheckInitialization(); //tests depth, isEmpty,getRoot and constructors
+        BST2CheckInsert();
+        BST2CheckRemove(); 
+        BST2CheckPrintWalk(); 
+        BST2CheckDepthEnum();
+        BST2CheckBreadthEnum();
     }
     private void NodeCheckSuccessor(){
-        BST tree = new BST();
+        BST2 tree = new BST2();
         //Standard uses for insert function:
         tree.insert(1);
         tree.insert(-1);
@@ -126,9 +136,9 @@ class Tester{
         Node n1 = new Node();//testing 1st constructor
         if (n1.key == 0)pass++; else fail++; // again java convention, ints can't be null so the default value is 0
         if (n1.child[0] == null && n1.child[1] == null && n1.parent == null)pass++; else fail++;//checking children intialization
+        
         n1.key = -1; //setting a key
         if (n1.key == -1)pass++; else fail++;//checking it set properly
-
         n1.child[0] = new Node(1);//testing 2nd constructor
         if (n1.child[0].key == 1)pass++; else fail++;
         if (n1.child[0].child[0] == null && n1.child[0].child[1] == null && n1.child[0].parent == null)pass++; else fail++;
@@ -138,13 +148,13 @@ class Tester{
         if (n1.child[0].child[1].child[0] == null && n1.child[0].child[1].child[1] == null && n1.child[0].child[1].parent == n1.child[0])pass++; else fail++;
 
         //testing toString
-        if (n1.toString().equals("-1") && n1.child[0].toString().equals("1") && n1.child[0].child[1].toString().equals("4"))pass++; else fail++;
+        if (n1.toString().equals("-1.0") && n1.child[0].toString().equals("1.0") && n1.child[0].child[1].toString().equals("4.0"))pass++; else fail++;
     }
-    private void BSTCheckInitialization(){
-        BST tree = new BST();
+    private void BST2CheckInitialization(){
+        BST2 tree = new BST2();
         if (tree.getRoot() == null)pass++; else fail++; //checks if root is initalized properly
         if (tree.isEmpty())pass++; else fail++; // given that root is properly initalized test whether isEmpty gives a correct default value
-        tree = new BST(new Node(1));//Same checks on alternate constructor
+        tree = new BST2(new Node(1));//Same checks on alternate constructor
         if (tree.getRoot() != null)pass++; else fail++; 
         if (!tree.isEmpty())pass++; else fail++; 
 
@@ -155,8 +165,8 @@ class Tester{
         //     if (tree.depth() == 2+i)pass++; else fail++; 
         // }
     }
-    private void BSTCheckInsert(){
-        BST tree = new BST();
+    private void BST2CheckInsert(){
+        BST2 tree = new BST2();
         //Standard uses for insert function:
         tree.insert(1);
         if (tree.getRoot() != null)pass++; else fail++; //checks if a value of any type was assigned to the root
@@ -183,9 +193,49 @@ class Tester{
           1
         */
     }
+    private void BST2CheckDepthEnum(){
+        //no need for anything as printwalk has already been tested
+    }
+    private void BST2CheckBreadthEnum(){
+        BST2 tree = new BST2();
+        tree.insert(1);
+        tree.insert(-1);
+        tree.insert(2);
+        tree.insert(1);
+        tree.insert(1);
+        tree.insert(2);
+        /*
+            1
+         -1   2
+           1 2
+          1
+        */
+        if (tree.breadthFirstEnum().equals("1.0,-1.0,2.0,1.0,2.0,1.0"))pass++; else fail++;
+        tree.scrubParent(tree.getRoot().child[1]);
+        if (tree.breadthFirstEnum().equals("1.0,-1.0,1.0,1.0"))pass++; else fail++;
+        tree.insert(2);
+        tree.insert(2);
+        tree.scrubParent(tree.getRoot().child[1].child[0]);
+        if (tree.breadthFirstEnum().equals("1.0,-1.0,2.0,1.0,1.0"))pass++; else fail++;
+        tree.insert(2);
+        tree.scrubParent(tree.getRoot().child[0].child[1].child[0]);
+        if (tree.breadthFirstEnum().equals("1.0,-1.0,2.0,1.0,2.0"))pass++; else fail++;
+        tree.insert(1);
+        tree.scrubParent(tree.getRoot().child[0].child[1]);
+        if (tree.breadthFirstEnum().equals("1.0,-1.0,2.0,2.0"))pass++; else fail++;
+        tree.insert(1);
+        tree.insert(1);
+        tree.scrubParent(tree.getRoot().child[0]);
+        if (tree.breadthFirstEnum().equals("1.0,2.0,2.0"))pass++; else fail++;
+        tree.insert(1);
+        tree.insert(1);
+        tree.insert(-1);
+        tree.scrubParent(tree.getRoot());
+        if (tree.breadthFirstEnum().equals(""))pass++; else fail++;
+    };
 
-    private void BSTCheckRemove(){
-        BST tree = new BST();
+    private void BST2CheckRemove(){
+        BST2 tree = new BST2();
         tree.insert(1);
         tree.insert(-1);
         tree.insert(2);
@@ -200,23 +250,23 @@ class Tester{
         */
         //Standard uses for scrub function:
         tree.scrubParent(null);
-        if (tree.printwalk().equals("-1 1 1 1 2 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 1.0 1.0 2.0 2.0"))pass++; else fail++;
         tree.scrubParent(tree.getRoot().child[1]);
-        if (tree.printwalk().equals("-1 1 1 1"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 1.0 1.0"))pass++; else fail++;
         tree.insert(2);
         tree.insert(2);
         tree.scrubParent(tree.getRoot().child[1].child[0]);
-        if (tree.printwalk().equals("-1 1 1 1 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 1.0 1.0 2.0"))pass++; else fail++;
         tree.insert(2);
         tree.scrubParent(tree.getRoot().child[0].child[1].child[0]);
-        if (tree.printwalk().equals("-1 1 1 2 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 1.0 2.0 2.0"))pass++; else fail++;
         tree.insert(1);
         tree.scrubParent(tree.getRoot().child[0].child[1]);
-        if (tree.printwalk().equals("-1 1 2 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 2.0 2.0"))pass++; else fail++;
         tree.insert(1);
         tree.insert(1);
         tree.scrubParent(tree.getRoot().child[0]);
-        if (tree.printwalk().equals("1 2 2"))pass++; else fail++;
+        if (tree.printwalk().equals("1.0 2.0 2.0"))pass++; else fail++;
         tree.insert(1);
         tree.insert(1);
         tree.insert(-1);
@@ -224,47 +274,47 @@ class Tester{
         if (tree.printwalk().equals(""))pass++; else fail++;
 
         //testing remove function
-        tree = new BST(new Node(1));
+        tree = new BST2(new Node(1));
         tree.remove(1);
         if (tree.isEmpty())pass++; else fail++;
     }; 
-    private void BSTCheckPrintWalk(){
-        BST tree = new BST();
+    private void BST2CheckPrintWalk(){
+        BST2 tree = new BST2();
         if (tree.printwalk().equals(""))pass++; else fail++;//test empty tree (constructor 1)
 
-        tree = new BST(new Node(1));
-        if (tree.printwalk().equals("1"))pass++; else fail++;// test constructor 2's tree
+        tree = new BST2(new Node(1));
+        if (tree.printwalk().equals("1.0"))pass++; else fail++;// test constructor 2's tree
 
-        String ans = "1";//test decent length but standard input w/ spacing
-        for (int i = 1; i < 100; i++){
+        String ans = "1.0";//test decent length but standard input w/ spacing
+        for (int i = 1; i < 101; i++){
             tree.insert(i);
-            ans += " " + String.valueOf(i);
+            ans += " " + String.valueOf(i) + ".0";
             if (tree.printwalk().equals(ans))pass++; else fail++;
         }
 
-        tree = new BST(new Node(1));//test standard use case with negatives and dupliactes
+        tree = new BST2(new Node(1));//test standard use case with negatives and dupliactes
         tree.insert(-1);
-        if (tree.printwalk().equals("-1 1"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0"))pass++; else fail++;
         tree.insert(2);
-        if (tree.printwalk().equals("-1 1 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 2.0"))pass++; else fail++;
         tree.insert(1);
-        if (tree.printwalk().equals("-1 1 1 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 1.0 2.0"))pass++; else fail++;
         tree.insert(1);
-        if (tree.printwalk().equals("-1 1 1 1 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 1.0 1.0 2.0"))pass++; else fail++;
         tree.insert(2);
-        if (tree.printwalk().equals("-1 1 1 1 2 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-1.0 1.0 1.0 1.0 2.0 2.0"))pass++; else fail++;
         tree.insert(-400);
-        if (tree.printwalk().equals("-400 -1 1 1 1 2 2"))pass++; else fail++;
+        if (tree.printwalk().equals("-400.0 -1.0 1.0 1.0 1.0 2.0 2.0"))pass++; else fail++;
     }; 
 }
 
 
 class Node{
-    int key;
+    double key;
     Node[] child = new Node[2];
     Node parent;
     public Node(){}
-    public Node(int _key){
+    public Node(double _key){
         key = _key;
     }
     public int depth(){
@@ -275,7 +325,7 @@ class Node{
 
         return Math.max(child[1].depth()+1,child[0].depth()+1);
     }
-    public Node(int _key, Node _parent){
+    public Node(double _key, Node _parent){
         key = _key;
         parent = _parent;
     }
